@@ -1,7 +1,7 @@
 import telepot
 from telepot.loop import MessageLoop
 import time
-# from pprint import pprint
+from pprint import pprint
 import sys
 import sqlite3
 
@@ -20,11 +20,13 @@ def init_db():
 
 	# Create table
 	c.execute('CREATE TABLE IF NOT EXISTS counts (chat_id int, sender_id int, username text, count int)')
+	c.execute('CREATE TABLE IF NOT EXISTS log (chat_id int, sender_id int, username text, date int, typ text)')
 
-def inc_count(chat_id, sender_id, username):
+def inc_count(chat_id, sender_id, username, date, typ):
 	conn = sqlite3.connect('stats.db')
 	c = conn.cursor()
 
+	c.execute("INSERT INTO log VALUES (?, ?, ?, ?, ?)", (chat_id, sender_id, username, date, typ))
 	c.execute('SELECT count FROM counts where chat_id=? and sender_id=?', (chat_id, sender_id))
 	r = c.fetchone()
 
@@ -50,6 +52,14 @@ def get_count(chat_id, sender_id):
 	else:
 		return r[0]
 
+def get_stats(chat_id, sender_id):
+	conn = sqlite3.connect('stats.db')
+	c = conn.cursor()
+
+	r = c.execute('select typ, count(*) as count from log where chat_id=? and sender_id=? group by typ order by count desc', (chat_id, sender_id))
+	return r.fetchall()
+
+
 def get_top(chat_id):
 	conn = sqlite3.connect('stats.db')
 	c = conn.cursor()
@@ -67,6 +77,30 @@ def reset_count(chat_id, sender_id):
 
 counts = {}
 
+types = [
+	("text", "TEXT"),
+	("edit_date", "EDIT"),
+	("location", "LOCATION"),
+	("video", "VIDEO"),
+	("voice", "VOICE"),
+	("photo", "PHOTO"),
+	("document", "DOCUMENT"),
+	("sticker", "STICKER"),
+]
+
+def get_type(msg):
+	typ = None
+	for keyword, t in types:
+		if keyword in msg:
+			typ = t
+			break
+
+	if typ is None:
+		print "unknown typ"
+		pprint(msg)
+
+	return typ
+
 def handle(msg):
 	# print ""
 	# print "#"*40
@@ -75,8 +109,10 @@ def handle(msg):
 	chat_id   = msg["chat"]["id"]
 	sender_id = msg["from"]["id"]
 	username  = msg["from"]["first_name"]
+	date = msg["edit_date"] if "edit_date" in msg else msg["date"]
+	typ = get_type(msg)
 
-	inc_count(chat_id, sender_id, username)
+	inc_count(chat_id, sender_id, username, date, typ)
 
 	if not "text" in msg:
 		return
@@ -84,7 +120,11 @@ def handle(msg):
 	text = msg["text"]
 
 	if text == "/mystats" or text == "/mystats@scheuble_bot":
-		bot.sendMessage(chat_id, "You sent %s messages in this channel." % get_count(chat_id, sender_id))
+		count = get_count(chat_id, sender_id)
+		out = "%s, you sent %s messages in this channel.\n" % (username, count)
+		stats = get_stats(chat_id, sender_id)
+		out += "\n".join("%s: %s (%.1f%%)" % (name, c, 100.*c/count) for name,c in stats)
+		bot.sendMessage(chat_id, out)
 		return
 
 	if text == "/top" or text == "/top@scheuble_bot":
@@ -94,12 +134,18 @@ def handle(msg):
 		bot.sendMessage(chat_id, out)
 		return
 
+	# if text == "/reset" or text == "/reset@scheuble_bot":
+	# 	reset_count(chat_id, sender_id)
+	# 	bot.sendMessage(chat_id, "%s, done." % username)
+	# 	return
+if __name__ == '__main__':
+	TOKEN = sys.argv[1]
 
-TOKEN = sys.argv[1]
+	init_db()
 
-bot = telepot.Bot(TOKEN)
-MessageLoop(bot, handle).run_as_thread()
+	bot = telepot.Bot(TOKEN)
+	MessageLoop(bot, handle).run_as_thread()
 
-print "Listening..."
-while True:
-	time.sleep(10)
+	print "Listening..."
+	while True:
+		time.sleep(10)
