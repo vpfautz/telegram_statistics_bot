@@ -80,9 +80,7 @@ def reset_count(chat_id):
 	conn.commit()
 
 
-counts = {}
-
-types = [
+MSG_TYPES = [
 	("edit_date", "EDIT"),
 	("text", "TEXT"),
 	("location", "LOCATION"),
@@ -95,7 +93,7 @@ types = [
 
 def get_type(msg):
 	typ = None
-	for keyword, t in types:
+	for keyword, t in MSG_TYPES:
 		if keyword in msg:
 			typ = t
 			break
