@@ -131,7 +131,7 @@ def handle(msg):
 		top = get_top(chat_id)
 		total = sum(map(lambda x:x[1], top))
 		out = ""
-		for u,c in get_top(chat_id):
+		for u,c in top:
 			out += "%s: %s (%.1f%%)\n" % (u, c, 100.*c/total)
 		bot.sendMessage(chat_id, out)
 		return
@@ -140,6 +140,8 @@ def handle(msg):
 	# 	reset_count(chat_id, sender_id)
 	# 	bot.sendMessage(chat_id, "%s, done." % username)
 	# 	return
+
+
 if __name__ == '__main__':
 	TOKEN = sys.argv[1]
 
