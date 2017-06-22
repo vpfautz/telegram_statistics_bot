@@ -128,9 +128,11 @@ def handle(msg):
 		return
 
 	if text == "/top" or text == "/top@scheuble_bot":
+		top = get_top(chat_id)
+		total = sum(map(lambda x:x[1], top))
 		out = ""
-		for user in get_top(chat_id):
-			out += "%s (%s)\n" % user
+		for u,c in get_top(chat_id):
+			out += "%s: %s (%.1f%%)\n" % (u, c, 100.*c/total)
 		bot.sendMessage(chat_id, out)
 		return
 
