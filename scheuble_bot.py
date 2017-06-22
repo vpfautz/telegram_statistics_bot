@@ -1,7 +1,7 @@
 import telepot
 from telepot.loop import MessageLoop
 import time
-from pprint import pprint
+# from pprint import pprint
 import sys
 
 
@@ -14,9 +14,9 @@ Counts messages from users and can display who sent how many.
 counts = {}
 
 def handle(msg):
-	print ""
-	print "#"*40
-	pprint(msg)
+	# print ""
+	# print "#"*40
+	# pprint(msg)
 
 	chat_id = msg["chat"]["id"]
 
