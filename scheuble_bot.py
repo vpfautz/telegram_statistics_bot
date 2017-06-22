@@ -78,8 +78,8 @@ def reset_count(chat_id, sender_id):
 counts = {}
 
 types = [
-	("text", "TEXT"),
 	("edit_date", "EDIT"),
+	("text", "TEXT"),
 	("location", "LOCATION"),
 	("video", "VIDEO"),
 	("voice", "VOICE"),
