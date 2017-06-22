@@ -10,6 +10,10 @@ import sqlite3
 $ python scheuble_bot.py <token>
 
 Counts messages from users and can display who sent how many.
+
+top - Returns the top message senders in this channel
+mystats - Returns your stats in this channel
+reset - Resets stats for this channel (Admin only!)
 """
 
 
@@ -67,11 +71,12 @@ def get_top(chat_id):
 	r = c.execute('SELECT username, count FROM counts where chat_id=? order by count desc', (chat_id,))
 	return r.fetchall()
 
-def reset_count(chat_id, sender_id):
+def reset_count(chat_id):
 	conn = sqlite3.connect('stats.db')
 	c = conn.cursor()
 
-	c.execute('DELETE FROM counts where chat_id=? and sender_id=?', (chat_id, sender_id))
+	c.execute('DELETE FROM counts where chat_id=?', (chat_id,))
+	c.execute('DELETE FROM log where chat_id=?', (chat_id,))
 	conn.commit()
 
 
@@ -136,10 +141,20 @@ def handle(msg):
 		bot.sendMessage(chat_id, out)
 		return
 
-	# if text == "/reset" or text == "/reset@scheuble_bot":
-	# 	reset_count(chat_id, sender_id)
-	# 	bot.sendMessage(chat_id, "%s, done." % username)
-	# 	return
+	if text == "/reset" or text == "/reset@scheuble_bot":
+		isadmin = False
+		for admin in bot.getChatAdministrators(chat_id):
+			if admin["user"]["id"] == sender_id:
+				isadmin = True
+				break
+
+		if not isadmin:
+			bot.sendMessage(chat_id, "%s, you're not an admin!" % username)
+			return
+
+		reset_count(chat_id)
+		bot.sendMessage(chat_id, "%s, done." % username)
+		return
 
 
 if __name__ == '__main__':
