@@ -109,6 +109,8 @@ def handle(msg):
 	# print "#"*40
 	# pprint(msg)
 
+	bot_name = bot.getMe()["username"]
+
 	chat_id   = msg["chat"]["id"]
 	sender_id = msg["from"]["id"]
 	username  = msg["from"]["first_name"]
@@ -122,7 +124,7 @@ def handle(msg):
 
 	text = msg["text"]
 
-	if text == "/mystats" or text == "/mystats@scheuble_bot":
+	if text == "/mystats" or text == "/mystats@%s" % bot_name:
 		count = get_count(chat_id, sender_id)
 		out = "%s, you sent %s messages in this channel.\n" % (username, count)
 		stats = get_stats(chat_id, sender_id)
@@ -130,7 +132,7 @@ def handle(msg):
 		bot.sendMessage(chat_id, out)
 		return
 
-	if text == "/top" or text == "/top@scheuble_bot":
+	if text == "/top" or text == "/top@%s" % bot_name:
 		top = get_top(chat_id)
 		total = sum(map(lambda x:x[1], top))
 		out = ""
@@ -139,7 +141,7 @@ def handle(msg):
 		bot.sendMessage(chat_id, out)
 		return
 
-	if text == "/reset" or text == "/reset@scheuble_bot":
+	if text == "/reset" or text == "/reset@%s" % bot_name:
 		isadmin = False
 		for admin in bot.getChatAdministrators(chat_id):
 			if admin["user"]["id"] == sender_id:

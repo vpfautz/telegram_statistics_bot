@@ -1,4 +1,4 @@
-# telegram_scheuble_bot
+# telegram_statistics_bot
 A simple bot to count messages in and give statistics about users.
 
 # Requirements
@@ -8,5 +8,5 @@ pip install telepot
 
 # Usage
 ```
-python scheuble_bot.py <token>
+python statistics_bot.py <token>
 ```
