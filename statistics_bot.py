@@ -125,10 +125,9 @@ def handle(msg):
 	if "left_chat_member" in msg:
 		return
 
-	typ = get_type(msg)
-	inc_count(chat_id, sender_id, username, date, typ)
-
 	if not "text" in msg:
+		typ = get_type(msg)
+		inc_count(chat_id, sender_id, username, date, typ)
 		return
 
 	text = msg["text"]
@@ -164,6 +163,9 @@ def handle(msg):
 		reset_count(chat_id)
 		bot.sendMessage(chat_id, "%s, done." % username)
 		return
+
+	typ = get_type(msg)
+	inc_count(chat_id, sender_id, username, date, typ)
 
 
 if __name__ == '__main__':
