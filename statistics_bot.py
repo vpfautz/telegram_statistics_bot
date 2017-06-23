@@ -115,8 +115,17 @@ def handle(msg):
 	sender_id = msg["from"]["id"]
 	username  = msg["from"]["first_name"]
 	date = msg["edit_date"] if "edit_date" in msg else msg["date"]
-	typ = get_type(msg)
 
+	if "new_chat_member" in msg:
+		new_name = msg["new_chat_member"]["first_name"]
+		bot.sendMessage(chat_id, u"Hello %s \U0001f60a" % new_name)
+		return
+
+	# ignore left messages
+	if "left_chat_member" in msg:
+		return
+
+	typ = get_type(msg)
 	inc_count(chat_id, sender_id, username, date, typ)
 
 	if not "text" in msg:
