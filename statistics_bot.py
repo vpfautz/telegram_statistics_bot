@@ -63,6 +63,19 @@ def get_type_count(chat_id, sender_id):
 	r = c.execute('select typ, count(*) as count from log where chat_id=? and sender_id=? group by typ order by count desc', (chat_id, sender_id))
 	return r.fetchall()
 
+def get_avg(chat_id, sender_id):
+	conn = sqlite3.connect('stats.db')
+	c = conn.cursor()
+
+	since = int(time.time()) - 24*3600
+	r = c.execute('select count(*) from log where chat_id=? and sender_id=? and date>=?', (chat_id, sender_id, since))
+	avg1 = r.fetchone()[0]
+
+	since = int(time.time()) - 24*3600 * 7
+	r = c.execute('select count(*) from log where chat_id=? and sender_id=? and date>=?', (chat_id, sender_id, since))
+	avg7 = r.fetchone()[0]
+
+	return (avg1, avg7)
 
 def get_top(chat_id):
 	conn = sqlite3.connect('stats.db')
@@ -137,6 +150,7 @@ def handle(msg):
 		out = "%s, you sent %s messages in this channel.\n" % (username, count)
 		stats = get_type_count(chat_id, sender_id)
 		out += "\n".join("%s: %s (%.1f%%)" % (name, c, 100.*c/count) for name,c in stats)
+		out += "\n24h: %s, 7 days: %s" % (get_avg(chat_id, sender_id))
 		bot.sendMessage(chat_id, out)
 		return
 
