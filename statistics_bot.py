@@ -153,7 +153,15 @@ def handle(msg):
 		out = "%s, you sent %s messages in this channel.\n" % (username, count)
 		stats = get_type_count(chat_id, sender_id)
 		out += "\n".join("%s: %s (%.1f%%)" % (name, c, 100.*c/count) for name,c in stats)
-		out += "\n24h: %s, 7 days: %s" % (get_avg(chat_id, sender_id))
+		avg1, avg7 = get_avg(chat_id, sender_id)
+		out += "\nday: %s, week: %s" % (avg1, avg7)
+
+		# trend
+		if avg1*7 > avg7:
+			out += u" \u2197\ufe0f" # up
+		elif avg1*7 < avg7:
+			out += u" \u2198\ufe0f" # down
+
 		bot.sendMessage(chat_id, out)
 		return
 
