@@ -146,6 +146,8 @@ def handle(msg):
 	text = msg["text"]
 
 	if text == "/mystats" or text == "/mystats@%s" % bot_name:
+		if time.time() - date > 5:
+			return
 		count = get_count(chat_id, sender_id)
 		out = "%s, you sent %s messages in this channel.\n" % (username, count)
 		stats = get_type_count(chat_id, sender_id)
@@ -155,6 +157,8 @@ def handle(msg):
 		return
 
 	if text == "/top" or text == "/top@%s" % bot_name:
+		if time.time() - date > 5:
+			return
 		top = get_top(chat_id)
 		total = sum(map(lambda x:x[1], top))
 		out = ""
@@ -164,6 +168,8 @@ def handle(msg):
 		return
 
 	if text == "/reset" or text == "/reset@%s" % bot_name:
+		if time.time() - date > 5:
+			return
 		isadmin = False
 		for admin in bot.getChatAdministrators(chat_id):
 			if admin["user"]["id"] == sender_id:
