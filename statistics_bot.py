@@ -56,7 +56,7 @@ def get_count(chat_id, sender_id):
 	else:
 		return r[0]
 
-def get_stats(chat_id, sender_id):
+def get_type_count(chat_id, sender_id):
 	conn = sqlite3.connect('stats.db')
 	c = conn.cursor()
 
@@ -135,7 +135,7 @@ def handle(msg):
 	if text == "/mystats" or text == "/mystats@%s" % bot_name:
 		count = get_count(chat_id, sender_id)
 		out = "%s, you sent %s messages in this channel.\n" % (username, count)
-		stats = get_stats(chat_id, sender_id)
+		stats = get_type_count(chat_id, sender_id)
 		out += "\n".join("%s: %s (%.1f%%)" % (name, c, 100.*c/count) for name,c in stats)
 		bot.sendMessage(chat_id, out)
 		return
