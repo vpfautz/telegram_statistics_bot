@@ -17,6 +17,7 @@ reset - Resets stats for this channel (Admin only!)
 """
 
 
+ANSWER_TIMEOUT = 10
 
 def init_db():
 	conn = sqlite3.connect('stats.db')
@@ -146,7 +147,7 @@ def handle(msg):
 	text = msg["text"]
 
 	if text == "/mystats" or text == "/mystats@%s" % bot_name:
-		if time.time() - date > 5:
+		if time.time() - date > ANSWER_TIMEOUT:
 			return
 		count = get_count(chat_id, sender_id)
 		out = "%s, you sent %s messages in this channel.\n" % (username, count)
@@ -157,7 +158,7 @@ def handle(msg):
 		return
 
 	if text == "/top" or text == "/top@%s" % bot_name:
-		if time.time() - date > 5:
+		if time.time() - date > ANSWER_TIMEOUT:
 			return
 		top = get_top(chat_id)
 		total = sum(map(lambda x:x[1], top))
@@ -168,7 +169,7 @@ def handle(msg):
 		return
 
 	if text == "/reset" or text == "/reset@%s" % bot_name:
-		if time.time() - date > 5:
+		if time.time() - date > ANSWER_TIMEOUT:
 			return
 		isadmin = False
 		for admin in bot.getChatAdministrators(chat_id):
