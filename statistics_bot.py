@@ -105,6 +105,12 @@ MSG_TYPES = [
 	("sticker", "STICKER"),
 ]
 
+IGNORE_TYPES = [
+	"migrate_from_chat_id",
+	"pinned_message",
+	"left_chat_member"
+]
+
 def get_type(msg):
 	typ = None
 	for keyword, t in MSG_TYPES:
@@ -135,9 +141,10 @@ def handle(msg):
 		bot.sendMessage(chat_id, u"Hello %s \U0001f60a" % new_name)
 		return
 
-	# ignore left messages
-	if "left_chat_member" in msg:
-		return
+	# ignore status messages
+	for t in IGNORE_TYPES:
+		if t in msg:
+			return
 
 	if not "text" in msg:
 		typ = get_type(msg)
